@@ -1,0 +1,3 @@
+# the tools configure.sh builds, and the logs of builds
+bin/
+build-logs/
