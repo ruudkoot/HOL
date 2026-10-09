@@ -136,3 +136,8 @@ examples/l3-machine-code/**/*-heap
 *Script_ttt.sml
 *.tttsave
 /TAGS
+
+# HOL on Rune: the image beside a program tools-rune/bin/polyc made, and
+# the caches of Rune's compiler where RUNE_CACHE does not say otherwise
+*.img
+.rune/

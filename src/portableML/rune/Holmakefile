@@ -1,0 +1,9 @@
+OPTIONS = NO_OVERLAY
+
+UOFILES = $(patsubst %.sml,%.uo,$(wildcard *.sml))
+
+all: $(UOFILES)
+
+# Unsynchronized for what assumes it is loaded with Portable, as on Poly/ML
+# (Table.sml)
+MLSYSPortable.uo: Susp.ui MD5.ui Unsynchronized.ui

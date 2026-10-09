@@ -200,8 +200,13 @@ fun read_buildsequence {kernelname} bseq_fname = let
                   else if Path.isAbsolute dirname0 then dirname0
                   else fullPath [HOLDIR, dirname0]
               open HOLFileSys
+              (* [sys] or [sys1,sys2,...]: only for those ML systems *)
+              val for_this_mlsys =
+                  mlsys = "" orelse
+                  List.exists (fn s => s = Systeml.ML_SYSNAME)
+                              (String.tokens (fn c => c = #",") mlsys)
             in
-              if (mlsys = "" orelse mlsys = Systeml.ML_SYSNAME) andalso
+              if for_this_mlsys andalso
                  (knl = "" orelse knl = kernelname) then
                 if access (dirname, [A_READ, A_EXEC]) then
                   if isDir dirname orelse mlsys <> "" then

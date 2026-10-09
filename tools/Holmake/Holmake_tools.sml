@@ -448,7 +448,7 @@ in
 end
 
 fun clean_forReloc {holheap} =
-  if Systeml.ML_SYSNAME = "poly" then
+  if Systeml.ML_SYSNAME = "poly" orelse Systeml.ML_SYSNAME = "rune" then
     case holheap of SOME s => quiet_remove s | _ => ()
   else ()
 

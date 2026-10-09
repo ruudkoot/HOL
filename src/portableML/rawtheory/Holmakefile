@@ -8,6 +8,13 @@ theorystats.uo: theorystats.sml $(dprot $(SIGOBJ)/Graph.ui) $(dprot $(SIGOBJ)/SH
 ifdef POLY
 all: theorytool
 
-theorytool: mktool.ML theorytool.ML theorystats.uo
+ifeq ($(ML_SYSNAME),rune)
+MKTOOL = mktool-rune.ML
+EXTRA_CLEANS = theorytool.img
+else
+MKTOOL = mktool.ML
+endif
+
+theorytool: $(MKTOOL) theorytool.ML theorystats.uo
 	$(POLYC) -o $@ $<
 endif

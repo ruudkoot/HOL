@@ -4,7 +4,8 @@ structure Systeml :> Systeml = struct
    (from tools-poly/Holmake/unix-systeml.sml).  It is the very first thing
    compiled by the HOL build process so it absolutely can not depend on any
    other HOL source code.  The POLY values of the signature are Rune's: POLY
-   is the REPL, rune-repl, and POLYC the compiler, rune. *)
+   is the REPL, rune-repl, and POLYC tools-rune/bin/polyc, which makes a
+   program of a file as Poly/ML's polyc does. *)
 
 structure Path = OS.Path
 structure Process = OS.Process

@@ -392,7 +392,7 @@ val base_environment0 = let
        ("OS", [LIT OS]),
        ("SIGOBJ", [VREF "HOLDIR", LIT "/sigobj"]),
        ("UNQUOTE", [VREF ("protect $(HOLDIR)/" ^ xable_string "/bin/unquote")])] @
-      (if Systeml.ML_SYSNAME = "poly" then
+      (if Systeml.ML_SYSNAME = "poly" orelse Systeml.ML_SYSNAME = "rune" then
          [("POLY", [LIT (Systeml.protect Systeml.POLY)]),
           ("POLYC", [LIT (Systeml.protect Systeml.POLYC)]),
           ("POLY_VERSION", [LIT (Int.toString Systeml.POLY_VERSION)]),

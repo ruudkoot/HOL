@@ -27,6 +27,10 @@ case "$(uname -s)" in
   SunOS) os=solaris ;;
   *) os=unix ;;
 esac
+# what Rune's compiler and REPL compile they keep in one cache (Rune's
+# docs/units.md, The cache), rather than in a .rune beside every file
+RUNE_CACHE=$holdir/tools-rune/cache
+export RUNE_CACHE
 make=$(command -v gmake || command -v make || echo make)
 dot=$(command -v dot || true)
 echo "HOL for Rune: HOLDIR $holdir, Rune $runebin, OS $os"
@@ -36,7 +40,7 @@ quote() { printf '"%s"' "$(printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g')"; }
 if [ -n "$dot" ]; then dotopt="SOME $(quote "$dot")"; else dotopt=NONE; fi
 sed -e "s|^val HOLDIR = \"\"|val HOLDIR = $(quote "$holdir")|" \
     -e "s|^val POLY = \"\"|val POLY = $(quote "$runebin/rune-repl")|" \
-    -e "s|^val POLYC = \"\"|val POLYC = $(quote "$runebin/rune")|" \
+    -e "s|^val POLYC = \"\"|val POLYC = $(quote "$holdir/tools-rune/bin/polyc")|" \
     -e "s|^val OS = \"\"|val OS = \"$os\"|" \
     -e "s|^val GNUMAKE = \"\"|val GNUMAKE = $(quote "$make")|" \
     -e 's|^val DYNLIB = ""|val DYNLIB = false|' \
@@ -57,6 +61,9 @@ cp tools-rune/Holmake/Systeml.sml sigobj/Systeml.sml
 
 # ---- the tools ------------------------------------------------------------
 mkdir -p tools-rune/bin bin
+# polyc, which the Holmakefiles make programs with (POLYC)
+sed -e "s|@RUNEBIN@|$runebin|" -e "s|@HOLDIR@|$holdir|" tools-rune/polyc.sh > tools-rune/bin/polyc
+chmod a+x tools-rune/bin/polyc
 # tool NAME TARGET FILE...: FILE... compiled into tools-rune/bin/NAME.rbc,
 # and TARGET the script that runs it
 tool() {
@@ -65,7 +72,10 @@ tool() {
   echo "Making $name"
   "$runebin/rune" -o "tools-rune/bin/$name.rbc" "$@" ||
     { echo "configure: $name does not compile" >&2; exit 1; }
-  printf '#!/bin/sh\nexec %s %s "$@"\n' "$runebin/runevm" "$holdir/tools-rune/bin/$name.rbc" > "$target"
+  # named by its own path (CommandLine.name), as an executable would be:
+  # Holmake goes by it
+  printf '#!/bin/sh\nexec %s --name %s %s "$@"\n' "$runebin/runevm" "$holdir/$target" \
+    "$holdir/tools-rune/bin/$name.rbc" > "$target"
   chmod a+x "$target"
 }
 subst="tools-poly/Holmake/Systeml.sml=tools-rune/Holmake/Systeml.sml \
@@ -127,5 +137,48 @@ tool genscriptdep bin/genscriptdep tools-poly/poly/Mosml.sml $mosmlish $hm/holpa
 # shellcheck disable=SC2086
 tool linkToSigobj bin/linkToSigobj $systeml $names $hm/poly/LTSprimitives.sml $hm/linkToSigobj.sml \
   tools-rune/mains/linkToSigobj.sml
+
+# ---- HOL's top level: the base image, and bin/buildheap ------------------
+echo "Making the base image (tools-rune/bin/buildheap.img)"
+rm -f tools-rune/bin/buildheap.img
+"$runebin/rune-repl" tools-rune/base.ML < /dev/null > tools-rune/bin/base.log 2>&1 || true
+[ -f tools-rune/bin/buildheap.img ] ||
+  { echo "configure: the base image was not made (tools-rune/bin/base.log)" >&2; tail -5 tools-rune/bin/base.log >&2; exit 1; }
+cat > bin/buildheap <<EOB
+#!/bin/sh
+# HOL's buildheap on Rune (tools-rune/buildheap.ML): the heap that
+# --holstate names (or -b) restored, the base image for --poly, else HOL's
+# default state; its main reads the arguments, these but Poly/ML's runtime's
+RUNE_CACHE=\${RUNE_CACHE-$holdir/tools-rune/cache}
+export RUNE_CACHE
+state=$holdir/bin/hol.state
+prev=""
+n=\$#
+while [ \$n -gt 0 ]; do
+  a=\$1
+  shift
+  n=\$((n - 1))
+  case "\$prev" in --holstate|-b) state=\$a ;; esac
+  case "\$a" in
+    --holstate=*) state=\${a#--holstate=} ;;
+    -b?*) state=\${a#-b} ;;
+    --poly) state=$holdir/tools-rune/bin/buildheap.img ;;
+  esac
+  prev=\$a
+  # what Poly/ML's runtime takes for itself, not buildheap: left out
+  case "\$a" in --gcthreads=*) ;; *) set -- "\$@" "\$a" ;; esac
+done
+exec $runebin/runevm --name $holdir/bin/buildheap --restore "\$state" -- "\$@"
+EOB
+chmod a+x bin/buildheap
+# hol.bare and hol, as the Poly/ML configuration has them (its
+# emit_hol_script): the REPL of a HOL state, with Poly/ML's preludes
+holscript() {
+  printf '#!/bin/sh\n# The HOL script (tools-rune/configure.sh)\n%s --gcthreads=1 --repl --holstate=%s %s "$@"\n' \
+    "$holdir/bin/buildheap" "$2" "$3" > "bin/$1"
+  chmod a+x "bin/$1"
+}
+holscript hol.bare "$holdir/bin/hol.state0" "Arbint Arbrat $holdir/tools-poly/prelude.ML"
+holscript hol "\`$holdir/bin/heapname\`" "Arbint Arbrat $holdir/tools-poly/prelude.ML $holdir/tools-poly/prelude2.ML"
 
 echo "Configured HOL for Rune: now run bin/build"

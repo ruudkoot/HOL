@@ -10,12 +10,14 @@ tools/set_mtime
 tools/mlyacc/mlyacclib
 [mosml]src/portableML/mosml
 [poly]src/portableML/poly
+[rune]src/portableML/rune
 src/portableML
 src/portableML/monads
 src/portableML/rawtheory
-[poly]src/portableML/json
+[poly,rune]src/portableML/json
 [poly]src/portableML/poly/concurrent
 [mosml]src/portableML/mosml/concurrent
+[rune]src/portableML/rune/concurrent
 !src/portableML/testsrc
 src/prekernel
 **KERNEL**
@@ -30,7 +32,7 @@ src/bool
 src/1
 (otknl)src/opentheory/postbool
 src/proofman
-[poly]bin/hol.bare
+[poly,rune]bin/hol.bare
 !src/proofman/tests
 !tools/Holmake/tests/preexec
 !tools/Holmake/tests/parallel_tests
