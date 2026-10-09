@@ -826,7 +826,7 @@ fun build_help graph =
      val _ = HOLFileSys.chDir dir
 
      (* builds the documentation tools called below *)
-     val _ = if ML_SYSNAME = "poly" then ignore (Poly_compilehelp())
+     val _ = if ML_SYSNAME = "poly" orelse ML_SYSNAME = "rune" then ignore (Poly_compilehelp())
              else if ML_SYSNAME = "mosml" then mosml_compilehelp()
              else raise Fail "Bogus ML_SYSNAME"
 

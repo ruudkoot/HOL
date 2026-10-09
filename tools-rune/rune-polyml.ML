@@ -206,13 +206,42 @@ end
 
 (* Poly/ML's threads, of which HOL's top level names the interrupt: Rune's is
    SML90.Interrupt (Runtime.catchInterrupt) *)
+(* Poly/ML's threads, of which HOL forks one, to read the help database
+   (tools-poly/poly/Help.sml): Rune has none, so a thread forked runs to
+   its end before fork returns, and a mutex is never held by another *)
+structure Mutex =
+struct
+  type mutex = unit
+  fun mutex () = ()
+  fun lock () = ()
+  fun unlock () = ()
+  fun trylock () = true
+end
+structure ConditionVar =
+struct
+  type conditionVar = unit
+  fun conditionVar () = ()
+  (* nothing else runs that could signal it *)
+  fun wait ((), ()) = raise Fail "ConditionVar.wait: no threads on Rune"
+  fun signal () = ()
+  fun broadcast () = ()
+end
 structure Thread =
 struct
+  exception Interrupt = SML90.Interrupt
+  type thread = unit
+  datatype threadAttribute = EnableBroadcastInterrupt of bool | MaximumMLStack of int option
+  fun fork (f : unit -> unit, _ : threadAttribute list) : thread = f ()
+  fun broadcastInterrupt () = ()
   structure Thread =
   struct
     exception Interrupt = SML90.Interrupt
+    type thread = thread
+    val fork = fork
     fun broadcastInterrupt () = ()
   end
+  structure Mutex = Mutex
+  structure ConditionVar = ConditionVar
 end
 
 (* Poly/ML's signals, of which HOL's top level catches SIGINT: Rune's
