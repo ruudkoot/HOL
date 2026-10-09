@@ -4,7 +4,9 @@
 #   polyc [-o OUT] FILE
 # As Poly/ML's polyc: FILE is used, as the REPL would -- so that it may use
 # others -- and OUT is a program that runs its main : unit -> unit. Here FILE
-# is used in Rune's REPL, the world then saved as OUT.img, and OUT is a
+# is used in Rune's REPL, after Poly/ML's names (tools-rune/rune-polyml.ML),
+# which such a file may use as it does on Poly/ML; the world is then saved
+# as OUT.img, and OUT is a
 # script that restores it, whose main then runs on OUT's arguments; an
 # exception main does not handle is reported, as Poly/ML's program would, and
 # the program fails.
@@ -31,6 +33,7 @@ trap 'rm -f "$driver"' EXIT
 sml_string() { printf '"%s"' "$(printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g')"; }
 cat > "$driver" <<EOF
 val _ = Compiler.printDepth := 0;
+val _ = use $(sml_string "@HOLDIR@/tools-rune/rune-polyml.ML");
 val _ = use $(sml_string "$file");
 val () =
   case Runtime.save $(sml_string "$img") of
