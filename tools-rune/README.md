@@ -76,6 +76,8 @@ Rune's own, because Rune has no threads.
   Poly/ML's Holmake variables (`POLY`, `POLYC`, ...) and heap cleaning.
 * `src/portableML/rawtheory`: `mktool-rune.ML`, which makes theorytool from
   `../rune`.
+* `tools/unicode-grep`: `rune-ugrep.ML`, which makes unicode-grep from
+  `tools-rune` rather than `tools-poly/Holmake/Systeml.sml`.
 
 ## Not there yet
 
