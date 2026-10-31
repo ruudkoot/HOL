@@ -144,6 +144,27 @@ rm -f tools-rune/bin/buildheap.img
 "$runebin/rune-repl" tools-rune/base.ML < /dev/null > tools-rune/bin/base.log 2>&1 || true
 [ -f tools-rune/bin/buildheap.img ] ||
   { echo "configure: the base image was not made (tools-rune/bin/base.log)" >&2; tail -5 tools-rune/bin/base.log >&2; exit 1; }
+# The image records Rune's equality budget. Restore keeps the stricter of
+# that and --equality-work, so a flag cannot raise it later. Term.identical
+# compares a whole term with one polymorphic `=`; milawa_core's term is
+# bigger than the default million steps.
+python3 - tools-rune/bin/buildheap.img << 'PY'
+import struct, sys
+path, = sys.argv[1:]
+limit = 1000000000
+with open(path, "r+b") as f:
+    magic = f.read(64)
+    nul = magic.find(b"\x00", len(b"runevm image 15 isa "))
+    if not magic.startswith(b"runevm image 15 isa ") or nul < 0:
+        raise SystemExit("configure: base image has no runevm header")
+    # kind, floor, six u32s, two intinf u32s, heap limit, then equality work
+    off = nul + 1 + 4 + 8 + 6 * 4 + 2 * 4 + 8
+    f.seek(off)
+    got = struct.unpack("<Q", f.read(8))[0]
+    if got < limit:
+        f.seek(off)
+        f.write(struct.pack("<Q", limit))
+PY
 cat > bin/buildheap <<EOB
 #!/bin/sh
 # HOL's buildheap on Rune (tools-rune/buildheap.ML): the heap that

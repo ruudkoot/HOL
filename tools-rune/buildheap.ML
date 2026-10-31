@@ -18,14 +18,60 @@ val _ = use "tools/Holmake/GetOpt.sml";
 val _ = use "tools/Holmake/FunctionalRecordUpdate.sml";
 val _ = use "tools-rune/holrepl.ML";
 
-(* what Rune does not have: the language server, and executables made from
-   a HOL state *)
+(* what Rune does not have: the language server *)
 structure LSPServer = struct
   fun start (_ : {diag : string -> unit}) : unit = raise Fail "no language server on Rune yet"
 end
+
+(* Poly/ML's --exe exports a native object and links it with cc. Rune saves
+   this world, and the program restores that image and runs fnname. The
+   image is output_exe ^ ".img". printDepth is 0 while the call is compiled
+   so the REPL does not echo `val () = ()`. *)
 structure BuildHeap_EXE_Compile = struct
-  fun exe_compile (_ : {fnname : string, output_exe : string, keep_temp_files : bool}) : unit =
-    raise Fail "no executables made from a HOL state on Rune yet"
+  fun exe_compile {fnname : string, output_exe : string, keep_temp_files : bool} : unit =
+    let
+      val _ = keep_temp_files
+      val img = output_exe ^ ".img"
+      val runevm =
+          OS.Path.joinDirFile {dir = OS.Path.dir Systeml.POLY, file = "runevm"}
+      val cache =
+          OS.Path.concat (Systeml.HOLDIR, OS.Path.concat ("tools-rune", "cache"))
+      val old_depth = !PolyML.Compiler.printDepth
+      val () = PolyML.print_depth 0
+      val source = TextIO.openString ("val () = " ^ fnname ^ " ()")
+      val function =
+          PolyML.compiler (fn () => TextIO.input1 source, [])
+          before PolyML.print_depth old_depth
+      val () = PolyML.shareCommonData PolyML.rootFunction
+      fun write_script () =
+        let
+          val out = TextIO.openOut output_exe
+          fun prot s = Systeml.protect s
+        in
+          TextIO.output (out,
+            "#!/bin/sh\n\
+            \RUNE_CACHE=${RUNE_CACHE-" ^ prot cache ^ "}\n\
+            \export RUNE_CACHE\n\
+            \exec " ^ prot runevm ^
+            " --name " ^ prot output_exe ^
+            " --restore " ^ prot img ^
+            " -- \"$@\"\n");
+          TextIO.closeOut out;
+          ignore (Systeml.mk_xable output_exe)
+        end
+    in
+      case Runtime.save img of
+          Runtime.Saved =>
+            (write_script (); OS.Process.exit OS.Process.success)
+        | Runtime.Restored =>
+            (function ()
+             handle e =>
+               (TextIO.output (TextIO.stdErr,
+                  "Exception- " ^ General.exnMessage e ^ " raised\n");
+                TextIO.flushOut TextIO.stdErr;
+                OS.Process.exit OS.Process.failure);
+             OS.Process.exit OS.Process.success)
+    end
 end
 
 val SIGOBJ = OS.Path.concat(Systeml.HOLDIR, "sigobj")
@@ -343,9 +389,17 @@ fun main() = let
   val original_die = die
   fun die s = if qp then OS.Process.exit OS.Process.failure else original_die s
   val allincs = ReadHMF.find_includes (OS.FileSys.getDir())
-  val _ = ReadHMF.extend_path_with_includes
-            {verbosity = 1 + (if debug then 1 else 0),
-             lpref = Meta.loadPath}
+  (* Poly/ML extends loadPath and then loadState replaces the process, so
+     the extension remains only for --poly. Rune has already restored the
+     image, and prelude.ML extends the path again: doing it here too put
+     tools/cmp on the REPL's loadPath twice (3 entries, Poly/ML has 2). *)
+  val _ =
+      case base_state of
+          NONE =>
+            ReadHMF.extend_path_with_includes
+              {verbosity = 1 + (if debug then 1 else 0),
+               lpref = Meta.loadPath}
+        | SOME _ => ()
   val _ = diag ("allincs = ["^String.concatWith ", " allincs ^"]")
   val base_state = Option.map mkAbs base_state
   val output = Option.map mkAbs output
