@@ -47,8 +47,12 @@ val _ = inDir "onesteploopdir"
               (t (fail_and ["INCLUDES chain"]) "INCLUDES one-step-loop") []
 val _ = inDir "nestedloopdir"
               (t (fail_and ["INCLUDES chain"]) "More complex INCLUDES loop") []
+(* Rune's Holmake is Poly/ML's, and reports Finished rather than the
+   recipe's Yay *)
 val _ = inDir "loopish_but_ok"
-              (t (succeed_and [if Systeml.ML_SYSNAME = "poly" then "Finished"
+              (t (succeed_and [if Systeml.ML_SYSNAME = "poly" orelse
+                                  Systeml.ML_SYSNAME = "rune"
+                               then "Finished"
                                else "Yay"])
                  "INCLUDES DAG OK")
               ["-r"]

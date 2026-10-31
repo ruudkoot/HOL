@@ -1,6 +1,6 @@
 INCLUDES = $(dprot $(HOLDIR)/src/integer) $(HOLDIR)/src/TeX
 
-EXTRA_CLEANS = heap munge.exe selftest.exe
+EXTRA_CLEANS = heap munge.exe munge.exe.img selftest.exe
 
 ifdef POLY
 HOLHEAP = heap

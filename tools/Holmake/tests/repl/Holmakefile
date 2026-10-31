@@ -12,30 +12,39 @@ all: $(DEFAULT_TARGETS)
 # CMP = $(protect $(HOLDIR)/tools/cmp/cmp.exe)
 CMP = diff -a
 
+# Rune's value printer writes `1 : int`, and a syntax error is
+# `Static errors in <stdIn>` on stdout (the phrase is on stderr).
+# Poly/ML writes `1: int` and its compiler's error lines.
+ifeq ($(ML_SYSNAME),rune)
+OUT_EXPECT = expected-rune
+else
+OUT_EXPECT = expected
+endif
+
 DEPS = test1.out test2.out test3.out test4.out test5.out
 
 all: $(DEPS)
 
 # FIXME: % in targets doesn't work
-test1.out: test1.input test1.expected
+test1.out: test1.input test1.$(OUT_EXPECT)
 	$(HOL) < $< | tail -n +8 > $@
-	$(CMP) $@ $(patsubst %.input,%.expected,$<)
+	$(CMP) $@ test1.$(OUT_EXPECT)
 
-test2.out: test2.input test2.expected
+test2.out: test2.input test2.$(OUT_EXPECT)
 	$(HOL) < $< | tail -n +8 > $@
-	$(CMP) $@ $(patsubst %.input,%.expected,$<)
+	$(CMP) $@ test2.$(OUT_EXPECT)
 
-test3.out: test3.input test3.expected
+test3.out: test3.input test3.$(OUT_EXPECT)
 	$(HOL) < $< | tail -n +8 > $@
-	$(CMP) $@ $(patsubst %.input,%.expected,$<)
+	$(CMP) $@ test3.$(OUT_EXPECT)
 
-test4.out: test4.input test4.expected
+test4.out: test4.input test4.$(OUT_EXPECT)
 	$(HOL) < $< | tail -n +8 > $@
-	$(CMP) $@ $(patsubst %.input,%.expected,$<)
+	$(CMP) $@ test4.$(OUT_EXPECT)
 
-test5.out: test5.input test5.expected
+test5.out: test5.input test5.$(OUT_EXPECT)
 	$(HOL) < $< | tail -n +8 > $@
-	$(CMP) $@ $(patsubst %.input,%.expected,$<)
+	$(CMP) $@ test5.$(OUT_EXPECT)
 
 endif
 

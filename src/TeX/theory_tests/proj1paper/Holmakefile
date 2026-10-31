@@ -9,7 +9,7 @@ munge.exe : $(MAIN).uo ppTheory.uo
 	$(protect $(HOLDIR)/bin/mkmunge.exe) $(MAIN)
 
 HOLHEAP = heap
-EXTRA_CLEANS = $(HOLHEAP) munge.exe paper.tex
+EXTRA_CLEANS = $(HOLHEAP) munge.exe munge.exe.img paper.tex
 
 BARE_THYS = ../proj1/proj1ATheory
 DEPS = $(patsubst %,%.uo,$(BARE_THYS))

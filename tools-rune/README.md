@@ -45,9 +45,18 @@ recompiles only what changed.
 | `polyc FILE -o OUT` | `tools-rune/bin/polyc` (`polyc.sh`) |
 | `src/portableML/poly` | `src/portableML/rune` |
 
-**Heaps.** Poly/ML's buildheap loads a heap into itself and carries on. A
+`PolyML.Compiler.lineLength` is Rune's ref, set to 77 when this shim loads.
+That is Poly/ML 5.9.2's initial value, and HOL's `Globals.linewidth` is
+that ref.
+
+**Heaps.** Poly/ML's buildheap loads a heap into itself and carries on. It
+extends `loadPath` from the current Holmakefile and then `loadState`
+replaces the process, so that extension remains only for `--poly`. A
 Rune image can't be loaded into a running program: restoring one replaces
 the program and resumes it inside the `Runtime.save` call that wrote it.
+`loadPath` is therefore extended only when the base is `--poly`.
+`--exe NAME` saves this world as `OUT.img` and writes `OUT` as a script
+that restores it and runs `NAME`. That is what `bin/mkmunge.exe` builds.
 So every heap here is a whole world with buildheap in it. `bin/buildheap`
 restores the heap that `--holstate` (or `-b`) names, or the base image for
 `--poly`, and the restored world runs buildheap's `main` on the arguments.
@@ -64,8 +73,11 @@ as `OUT.img` and writes `OUT` as a script that restores it and runs `main`.
 **src/portableML/rune** is mostly symlinks: the plain-SML files of
 `../poly` (Arbint, Arbnum, Exn, MD5, Random, SHA1, Susp, ...) and of
 `../mosml` (Unsynchronized, and `concurrent/`, the thread-free Future and
-friends). Only `MLSYSPortable.sml`, `Counter.sml` and `PrettyImpl.sml` are
-Rune's own, because Rune has no threads.
+friends). Only `MLSYSPortable.sml`, `Counter.sml`, `PrettyImpl.sml` and
+`smlTimeout.sml` are Rune's own. `PrettyImpl` lays documents out as
+Poly/ML's pretty printer does. `smlTimeout.timeout` runs its function to
+completion; the threaded structure is built only in `[poly] src/AI`.
+The symlinks of `../mosml` are Rune's because Rune has no threads.
 
 ## Changes outside tools-rune
 
@@ -74,6 +86,13 @@ Rune's own, because Rune has no threads.
   `tools/buildutils.sml` reads such tags.
 * `tools/Holmake/Holmake_types.sml`, `Holmake_tools.sml`: `rune` gets
   Poly/ML's Holmake variables (`POLY`, `POLYC`, ...) and heap cleaning.
+* `tools/Holmake/tests/badincludes/selftest.sml`: the DAG check expects
+  Poly/ML's `Finished` line on Rune.
+* `tools/Holmake/tests/quote-filter`: Rune compares `unquote` output with
+  `expected-poly`. `Systeml.bindstr` is Poly/ML's `quietbind` form.
+* `tools/Holmake/tests/repl`: Rune compares the zero-terminated REPL with
+  `testN.expected-rune`. Values are printed `1 : int`, and a syntax error
+  is `Static errors in <stdIn>` on stdout.
 * `src/portableML/rawtheory`: `mktool-rune.ML`, which makes theorytool from
   `../rune`.
 * `tools/unicode-grep`: `rune-ugrep.ML`, which makes unicode-grep from
@@ -81,10 +100,8 @@ Rune's own, because Rune has no threads.
 
 ## Not there yet
 
-* threads (`--mt`, `Future` in parallel), the language server
-  (`--lsp`), and executables made from a HOL state (`--exe`);
-* pretty printers installed with `PolyML.addPrettyPrinter` (they are
-  accepted and ignored), and `PolyML.prettyRepresentation`, which shows
-  any value as `?`: Rune prints a value only by a type it knows when it
-  compiles the printer;
+* threads (`--mt`, `Future` in parallel) and the language server (`--lsp`);
+* `PolyML.prettyRepresentation`, which shows any value as `?`: Rune
+  prints a value only by a type it knows when it compiles the printer.
+  `PolyML.addPrettyPrinter` is `Compiler.addPrettyPrinter`.
 * the `[poly]`-only directories (tactictoe, holyhammer, AI).

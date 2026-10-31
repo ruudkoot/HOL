@@ -3,7 +3,7 @@ PRE_INCLUDES = ..
 TEST_PROGS = test_coopers.exe test_omega.exe selftest.exe
 
 EXTRA_CLEANS = $(TEST_PROGS) tcooper genproblem gen_bc_problem \
-               testdp integer2-selftest.log modTex.tex munger
+               testdp integer2-selftest.log modTex.tex munger munger.img
 
 COOPER_DEPS = test_coopers.uo ../Cooper.uo ../CooperShell.uo \
               ../CooperMath.uo ../CooperSyntax.uo ../CooperCore.uo \

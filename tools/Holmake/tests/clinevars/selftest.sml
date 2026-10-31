@@ -6,7 +6,7 @@ fun do_holmake args =
   OS.Process.system
     ("cd test && " ^
      Systeml.protect (Systeml.HOLDIR ^ "/bin/Holmake") ^
-     (if Systeml.ML_SYSNAME = "poly" then
+     (if Systeml.ML_SYSNAME = "poly" orelse Systeml.ML_SYSNAME = "rune" then
         " --holstate " ^ Systeml.protect (Systeml.HOLDIR ^ "/bin/hol.state0")
       else "") ^ " " ^
      args);

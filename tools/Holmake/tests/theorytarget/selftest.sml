@@ -7,7 +7,8 @@ val _ = HOLFileSys.chDir "subdir"
 val op++ = OS.Path.concat
 val result =
     Systeml.systeml ([Globals.HOLDIR ++ "bin" ++ "Holmake"] @
-                     (if Systeml.ML_SYSNAME = "poly" then
+                     (if Systeml.ML_SYSNAME = "poly" orelse
+                         Systeml.ML_SYSNAME = "rune" then
                         ["--holstate", Globals.HOLDIR ++ "bin" ++ "hol.state0"]
                       else []) @
                      ["fooTheory"])

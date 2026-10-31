@@ -2,10 +2,17 @@
 
 INCLUDES = $(protect $(HOLDIR)/tools/cmp/)
 
-DEPS = $(dprot $(HOLDIR)/bin/unquote) input expected-$(ML_SYSNAME)
+# Rune's unquote emits Poly/ML's quietbind form (Systeml.bindstr).
+ifeq ($(ML_SYSNAME),rune)
+QUOTE_EXPECTED = expected-poly
+else
+QUOTE_EXPECTED = expected-$(ML_SYSNAME)
+endif
+
+DEPS = $(dprot $(HOLDIR)/bin/unquote) input $(QUOTE_EXPECTED)
 
 all: $(DEPS)
 	$(protect $(HOLDIR)/bin/unquote) < input > output
-	$(protect $(HOLDIR)/tools/cmp/cmp.exe) output expected-$(ML_SYSNAME)
+	$(protect $(HOLDIR)/tools/cmp/cmp.exe) output $(QUOTE_EXPECTED)
 
 EXTRA_CLEANS = output

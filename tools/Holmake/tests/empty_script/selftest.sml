@@ -42,11 +42,11 @@ fun grep pats f =
               case TextIO.inputLine istrm of
                   NONE => return false
                 | SOME line =>
-                  (case pluck (fn p => String.isSubstring (hd p) line) pats of
+                  (* -j4 records the two theories in either order. A line
+                     consumes whichever still-unseen pattern it contains. *)
+                  (case pluck (fn p => find_all p (Substring.full line)) pats of
                        NONE => checking()
-                     | SOME (p, t) =>
-                       if find_all p (Substring.full line) then recurse t
-                       else checking())
+                     | SOME (_, t) => recurse t)
           in
             checking()
           end
@@ -59,7 +59,7 @@ val pats = [["Couldn't find required output file:", "emptyTheory"],
 
 val desc = "failing Holmake with empty/non-producing scripts"
 val holstate_sfx = ["--holstate", Globals.HOLDIR ++ "bin" ++ "hol.state0"]
-val _ = if Systeml.ML_SYSNAME = "poly" then
+val _ = if Systeml.ML_SYSNAME = "poly" orelse Systeml.ML_SYSNAME = "rune" then
           let
             val _ = tprint ("Checking parallel "^desc)
             val res = Systeml.systeml_out {outfile="make.log"}
@@ -75,7 +75,8 @@ val _ = if Systeml.ML_SYSNAME = "poly" then
 val _ = tprint ("Checking sequential " ^ desc)
 val res = Systeml.systeml_out {outfile="make.log"}
                               ([hm, "--qof", "-k", "-j1"] @
-                               (if Systeml.ML_SYSNAME = "poly" then
+                               (if Systeml.ML_SYSNAME = "poly" orelse
+                                   Systeml.ML_SYSNAME = "rune" then
                                   holstate_sfx
                                 else []))
 

@@ -1,3 +1,7 @@
+ifdef POLY
+HOLHEAP = $(HOLDIR)/bin/hol.state0
+endif
+
 hmclinevars-selftest.log: selftest.exe
 	$(tee ./$<, $@)
 

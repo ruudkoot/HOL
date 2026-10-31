@@ -59,5 +59,7 @@ dupop20171208: dupop20171208_input dupop20171208_expected munge_d20171208.exe $(
 .PHONY: all check_output check_utyabb_output check_tyabb_output check_gh242 dupop20171208
 
 EXTRA_CLEANS = \
-  munge.exe tymunge.exe utymunge.exe munge_d20171208.exe munge248.exe \
+  munge.exe munge.exe.img tymunge.exe tymunge.exe.img \
+  utymunge.exe utymunge.exe.img munge_d20171208.exe munge_d20171208.exe.img \
+  munge248.exe munge248.exe.img \
   output utyabb_output tyabb_output gh242_output dupop20171208_output
