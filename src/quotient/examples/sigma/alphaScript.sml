@@ -12,6 +12,8 @@ Libs
 
 val _ = ParseExtras.temp_loose_equality()
 
+nonfix IN;
+
 
 val vars   =  ty_antiq( ==`:var list`== );
 val subs1  =  ty_antiq( ==`:(var # obj1) list`== );

@@ -5,6 +5,8 @@ Ancestors
 Libs
   numLib Mutual ind_rel dep_rewrite barendregt tactics
 
+nonfix IN;
+
 (* --------------------------------------------------------------------- *)
 (* Embedding the semantaics of objects as a foundational layer,          *)
 (* according to Abadi and Cardelli, "A Theory of Objects."               *)

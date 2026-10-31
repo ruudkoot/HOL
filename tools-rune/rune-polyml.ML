@@ -23,6 +23,11 @@ struct
     val prompt1 = RuneCompiler.prompt1
     val prompt2 = RuneCompiler.prompt2
     val timing = ref false
+    (* Poly/ML 5.9.2 starts Compiler.lineLength at 77. HOL's
+       Globals.linewidth is this ref, and src/1's large-COND selftest
+       breaks a line of 80 columns at that width. Rune's own
+       Compiler.lineLength starts at 80. *)
+    val () = RuneCompiler.lineLength := 77
     val lineLength = RuneCompiler.lineLength
     val compilerVersionNumber = 0
     datatype compilerParameters =

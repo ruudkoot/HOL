@@ -6,6 +6,8 @@ Libs
   listLib pred_setLib numLib Mutual ind_rel dep_rewrite
   barendregt tactics
 
+nonfix IN;
+
 val vars   =  ty_antiq( ==`:var list`== );
 val term   =  ty_antiq( ==`:'a term`== );
 val subs   =  ty_antiq( ==`:(var # 'a term) list`== );

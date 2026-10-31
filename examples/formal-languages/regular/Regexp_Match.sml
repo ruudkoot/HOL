@@ -607,7 +607,7 @@ fun dom_brzozo seen [] = seen
                ;
                dom_brzozo seen t
               )
-         else let val _ = kprint ("will be a new state (size: "^Int.toString (PolyML.objSize r)^"). ")
+         else let val _ = kprint "will be a new state. "
                   val prospects = transitions r
                   val _ = kprint ("Successors: "^Int.toString (length prospects)^"\n\n")
               in dom_brzozo (insert_regexp r seen)

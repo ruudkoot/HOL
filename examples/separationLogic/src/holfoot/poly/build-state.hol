@@ -33,6 +33,13 @@ val _ = holfoot_verify_spec (examplesDir ^ "/automatic/mergesort.sf") [];
 
 val _ = HOL_Interactive.toggle_quietdec();
 
-(* save state *)
-val state_file = "holfoot.state"
-val _ = PolyML.SaveState.saveState state_file;
+(* save state. Poly/ML's SaveState is not in the Rune heap, so each system
+   uses a file that is elaborated only there. A used file does not see this
+   REPL's bindings, hence the name is written in those files. *)
+val _ =
+  use (OS.Path.concat (OS.FileSys.getDir(),
+        if Systeml.ML_SYSNAME = "rune" then "rune-savestate.ML"
+        else "poly-savestate.ML"))
+val _ =
+  if OS.FileSys.access ("holfoot.state", []) then ()
+  else OS.Process.exit OS.Process.failure

@@ -18,6 +18,8 @@ Libs
   stringLib pred_setLib listLib numLib PairedLambda Psyntax
   dep_rewrite tactics
 
+nonfix IN;
+
 (*
 app load ["stringTheory", "stringLib", "pred_setTheory", "pred_setLib",
           "listTheory", "rich_listTheory", "listLib",

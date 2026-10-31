@@ -6,6 +6,8 @@ Libs
   pred_setLib numLib Mutual ind_rel dep_rewrite quotient
   barendregt tactics
 
+nonfix IN;
+
 (* In interactive sessions, do:
 
 app load ["barendregt", "tactics"

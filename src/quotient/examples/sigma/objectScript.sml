@@ -13,6 +13,8 @@ Libs
 
 val _ = ParseExtras.temp_loose_equality()
 
+nonfix IN;
+
 
 (* In interactive sessions, do:
 

@@ -257,14 +257,14 @@ in
   fun RING_RING_WORD ths tm = let
       val dty = type_of(rand tm);
       val rty = mk_type(ring_tyname,[dty]);
-      val rtms = filter (curry (=) rty o type_of) (freesl(tm::map concl ths))
+      val rtms = filter (curry (op =) rty o type_of) (freesl(tm::map concl ths))
    in
       if length rtms <> 1
       then failwith "RING_RULE: can't deduce which ring" else
       let val rtm = hd rtms;
           val tvs = itlist (union o type_vars_in_term o concl) ths
                            (type_vars_in_term tm);
-          val dty' = mk_vartype("Z"^itlist (curry (^) o dest_vartype) tvs "");
+          val dty' = mk_vartype("Z"^itlist (curry (op ^) o dest_vartype) tvs "");
           val rty' = mk_type(ring_tyname,[dty']);
           val avvers = HOLset.listItems
                          (itlist (fn th => fn s =>
@@ -384,7 +384,7 @@ end;
  *)
 fun RING_RULE tm = let
   val tvs = type_vars_in_term tm;
-  val ty = mk_vartype("Y" ^ itlist (curry (^) o dest_vartype) tvs "");
+  val ty = mk_vartype("Y" ^ itlist (curry (op ^) o dest_vartype) tvs "");
   val aty = Type.alpha;
   val tm' = inst [aty |-> ty] tm;
 in

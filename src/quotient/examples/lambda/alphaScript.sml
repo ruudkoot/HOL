@@ -5,6 +5,8 @@ Ancestors
 Libs
   pairLib listLib pred_setLib numLib ind_rel dep_rewrite tactics
 
+nonfix IN;
+
 (* --------------------------------------------------------------------- *)
 (* Building the definitions of alpha equivalence for object expressions. *)
 (* --------------------------------------------------------------------- *)

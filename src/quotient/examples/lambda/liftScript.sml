@@ -6,6 +6,8 @@ Libs
   pairLib listLib pred_setLib numLib Mutual ind_rel dep_rewrite
   quotientLib tactics Rsyntax
 
+nonfix IN;
+
 (* --------------------------------------------------------------------- *)
 (* Lifting the lambda calculus syntax to the abstract level.             *)
 (* --------------------------------------------------------------------- *)

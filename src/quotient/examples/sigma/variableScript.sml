@@ -27,6 +27,8 @@ Libs
 
 val _ = ParseExtras.temp_loose_equality()
 
+nonfix IN;
+
 
 (*
 app load ["stringTheory", "stringLib", "pred_setTheory", "pred_setLib",

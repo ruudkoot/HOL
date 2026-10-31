@@ -5,6 +5,8 @@ Ancestors
 Libs
   Psyntax listLib dep_rewrite pairLib numLib Mutual tactics
 
+nonfix IN;
+
 (* --------------------------------------------------------------------- *)
 (* Lifting the lambda calculus syntax to the abstract level.             *)
 (* Version 2.2.                                                          *)

@@ -218,7 +218,7 @@ fun read_files base_name ignore = let
   val long_line = n_times 70 (fn x => "=" ^ x) "\n"
   val _ = print long_line
   val _ = print ("  Base name: "^base_name^"\n")
-  val _ = print ("  Poly/ML: "^(int_to_string (PolyML.rtsVersion()))^"\n")
+  val _ = print ("  Poly/ML: "^(int_to_string PolyML.Compiler.compilerVersionNumber)^"\n")
   val _ = print ("  HOL: "^(HOL_version ())^"\n")
   val _ = print long_line
   (* file names *)

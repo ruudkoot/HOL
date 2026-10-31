@@ -42,7 +42,7 @@ val epsilon = UTF8.chr 0x03B5;
 val not_subset = UTF8.chr 0x2288;
 
 val _ = temp_overload_on (epsilon,listSyntax.nil_tm);
-val - = temp_overload_on ("RTC", ``λs. KSTAR{[a] | a ∈ s}``);
+val op - = temp_overload_on ("RTC", ``λs. KSTAR{[a] | a ∈ s}``);
 val _ = temp_overload_on ("RTC", ``KSTAR``);
 val _ = temp_overload_on ("TC",  ``KPLUS``);
 val _ = temp_overload_on (not_subset,“λx y. ~(x ⊆ y)”);

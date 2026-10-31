@@ -46,6 +46,7 @@ open listTheory;
 open liftTheory;
 open dep_rewrite;
 open Rsyntax;
+nonfix IN;
 
 
 val LIST_INDUCT_TAC =

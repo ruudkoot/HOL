@@ -446,6 +446,7 @@ val UNION_DELETE =
   );
 
 
+nonfix IN;
 val IN = save_thm("IN", CONJ NOT_IN_EMPTY IN_INSERT);
 
 val UNION = save_thm("UNION", CONJ UNION_EMPTY INSERT_UNION_EQ);
